@@ -9,8 +9,12 @@ wheels/
 # Virtual environments
 .venv
 
+# spark-generated files
+*derby.log
+
 # data files
 data/*
+metastore/*
 notebooks/*
 
 # Secrets
