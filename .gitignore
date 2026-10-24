@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# java libraries
+libs/*.jar
+
 # spark-generated files
 *derby.log
 

@@ -14,16 +14,15 @@ __all__ = ["get_new_db_files", "get_sqlite_tables_list", "load_sqlite_to_raw"]
 
 logger = logging.getLogger(__name__)
 
-def get_new_db_files(spark: SparkSession, fetch_latest: bool = True) -> list[str]:
+def get_new_db_files(spark: SparkSession) -> str | None:
     """
-    Return new SQLite files from the landing zone.
+    Return the latest SQLite file from the landing zone that is not loaded.
 
     Args:
         spark: Active Spark session.
-        fetch_latest: Whether to return only the latest new file.
 
     Returns:
-        List of new SQLite file names, or the latest new file when requested.
+        The latest sqlite file that is not loaded.
     """
     
     # get files from landing zone
@@ -32,7 +31,7 @@ def get_new_db_files(spark: SparkSession, fetch_latest: bool = True) -> list[str
     # early exit if no file is present
     if not any(landing_zone.iterdir()):
         logger.info("No files found in landing zone")
-        return []
+        return
 
     landing_zone_files: dict[str, datetime] = {}
 
@@ -53,33 +52,24 @@ def get_new_db_files(spark: SparkSession, fetch_latest: bool = True) -> list[str
 
                 landing_zone_files[file.name] = parsed_ts
     
-    loaded_files: set[str] = {row.file_name 
+    loaded_files: set[str] = {
+        row.file_name 
         for row in (
-            spark.table('raw.loaded_files')
+            spark.table("`raw`.`loaded_files`")
             .filter(F.col("is_active"))
             .select(F.col("file_name"))
             .collect()
         )
     }
 
-    if fetch_latest:
-        latest_file: str = max(landing_zone_files, key=landing_zone_files.__getitem__)
-        
-        if latest_file not in loaded_files:
-            logger.info("Latest file is new: %s", latest_file)
-            return [latest_file]
-        
-        logger.info("Latest file has already been loaded: %s", latest_file)
-        return [] 
-            
-    else:
-        new_files = list(landing_zone_files.keys() - loaded_files)
-        logger.info(
-            "Found a total of %d file(s) of which %d file(s) are new",
-            len(landing_zone_files.keys()),
-            len(new_files)
-        )
-        return new_files
+    latest_file: str = max(landing_zone_files, key=landing_zone_files.__getitem__)
+    
+    if latest_file not in loaded_files:
+        logger.info("Latest file is new: %s", latest_file)
+        return latest_file
+    
+    logger.info("Latest file has already been loaded: %s", latest_file)
+    return
 
 
 def get_sqlite_tables_list(db_file_name: str) -> list[str]:
