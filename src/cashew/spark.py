@@ -1,11 +1,10 @@
 from delta import configure_spark_with_delta_pip
 from pyspark.sql import SparkSession
-from cashew.config import METASTORE_DIR, WAREHOUSE_DIR
+from cashew.config import WAREHOUSE_DIR
 
 def create_spark_session() -> SparkSession:
     """Create and return a local Spark session with Delta Lake configured."""
 
-    METASTORE_DIR.mkdir(parents=True, exist_ok=True)
     WAREHOUSE_DIR.mkdir(parents=True, exist_ok=True)
     
     builder = (
@@ -23,9 +22,17 @@ def create_spark_session() -> SparkSession:
         .config( # set local warehouse directory
             "spark.sql.warehouse.dir", str(WAREHOUSE_DIR)
         )
-        .config( # enable hive catalog in local via derby
-            "spark.hadoop.javax.jdo.option.ConnectionURL",
-            f"jdbc:derby:;databaseName={METASTORE_DIR / 'metastore_db'};create=true"
+        .config( # set the hive metastore thrift api
+            "spark.hadoop.hive.metastore.uris", 
+            "thrift://localhost:9083"
+        )
+        .config( # set hive version
+            "spark.sql.hive.metastore.version", 
+            "4.0.1"
+        )
+        .config( # set metastore jar to download form maven
+            "spark.sql.hive.metastore.jars", 
+            "maven"
         )
         .enableHiveSupport()
     )
