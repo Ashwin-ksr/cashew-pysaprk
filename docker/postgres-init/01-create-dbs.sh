@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
-psql -v ON_ERROR_STOP=1 -v user="$METASTORE_USER" -v pw="$METASTORE_PASSWORD" \
+psql -v ON_ERROR_STOP=1  \
+     -v msuser="$METASTORE_USER" -v mspw="$METASTORE_PASSWORD" \
+     -v afuser="$AIRFLOW_DB_USER" -v afpw="$AIRFLOW_DB_PASSWORD" \
      --username postgres <<'SQL'
-CREATE USER :"user" WITH PASSWORD :'pw';
-CREATE DATABASE metastore OWNER :"user";
+CREATE USER :"msuser" WITH PASSWORD :'mspw';
+CREATE DATABASE metastore OWNER :"msuser";
+CREATE USER :"afuser" WITH PASSWORD :'afpw';
+CREATE DATABASE airflow OWNER :"afuser";
 SQL

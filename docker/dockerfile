@@ -1,0 +1,19 @@
+FROM apache/airflow:3.3.2-python3.14
+
+USER root
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends openjdk-17-jre-headless \
+ && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+
+# Same constraints as pyproject.toml. Airflow's own packages are already installed,
+# so pip resolves these against them instead of replacing them.
+RUN pip install --no-cache-dir \
+    "delta-spark>=4.4.0" \
+    "openpyxl>=3.1.5" \
+    "pandas>=2.2,<3" \
+    "pyarrow>=25.0.1" \
+    "pyspark>=4.2.0" \
+    "python-dotenv>=1.2.4"

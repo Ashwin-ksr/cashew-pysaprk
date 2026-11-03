@@ -1,4 +1,5 @@
 from delta import configure_spark_with_delta_pip
+import os
 from pyspark.sql import SparkSession
 from cashew.config import WAREHOUSE_DIR
 
@@ -11,6 +12,7 @@ def create_spark_session() -> SparkSession:
         SparkSession.builder
         .appName("Cashew")
         .master("local[*]")
+        .config("spark.driver.memory", "2g")
         .config( # add delta extension
             "spark.sql.extensions",
             "io.delta.sql.DeltaSparkSessionExtension",
@@ -22,9 +24,9 @@ def create_spark_session() -> SparkSession:
         .config( # set local warehouse directory
             "spark.sql.warehouse.dir", str(WAREHOUSE_DIR)
         )
-        .config( # set the hive metastore thrift api
-            "spark.hadoop.hive.metastore.uris", 
-            "thrift://localhost:9083"
+        .config( # set the hive metastore thrift api (container: hive-metastore, host: localhost)
+            "spark.hadoop.hive.metastore.uris",
+            os.environ.get("METASTORE_URI", "thrift://localhost:9083"),
         )
         .config( # set hive version
             "spark.sql.hive.metastore.version", 
