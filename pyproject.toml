@@ -23,3 +23,8 @@ build-backend = "uv_build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cashew"]
+
+[dependency-groups]
+dev = [
+    "apache-airflow-task-sdk==1.3.2",
+]

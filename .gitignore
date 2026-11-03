@@ -15,9 +15,15 @@ libs/*.jar
 # spark-generated files
 *derby.log
 
+# airflow-files
+logs/*
+
 # data files
-data/*
-metastore/*
+data/landing/*
+!data/landing/readme.md
+data/*.db
+
+# temp notebooks
 notebooks/*
 
 # Secrets

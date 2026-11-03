@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 @dataclass
 class OperationResult:
@@ -14,8 +14,3 @@ class OperationResult:
                 raise self.error
             raise RuntimeError(self.message or "Operation failed")
         return self
-
-@dataclass
-class SQLiteLoadResult(OperationResult):
-    tables_processed: int = 0
-    failed_tables: dict[str, str] = field(default_factory=dict)

@@ -1,0 +1,14 @@
+{
+  "executionEnvironments": [
+    {
+      // pylance throws unnecssary errors, so better disable some of them
+      "root": "dags",
+      "extraPaths": ["src"],
+      "reportArgumentType": "none",
+      "reportUnusedExpression": "none"
+    },
+    {
+      "root": "src"
+    }
+  ]
+}
